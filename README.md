@@ -6,7 +6,9 @@
 
 A robust full-stack data application that automates expense tracking. It uses **Computer Vision (OpenCV)** and **OCR (Tesseract)** to extract data from receipts, categorizes expenses using keyword logic, and visualizes spending habits via an interactive dashboard.
 
-### App Screenshot:
+#### App Link: 
+https://smart-expenses-tracker.streamlit.app/
+#### App Screenshot:
 <img width="969" height="2112" alt="image" src="https://github.com/user-attachments/assets/d469df61-a208-4d40-86e2-c4e85c3c0fe3" />
 
 ## 🚀 Key Features
