@@ -1,0 +1,7 @@
+streamlit
+pytesseract
+pandas
+pillow
+opencv-python-headless
+openpyxl
+streamlit-paste-button
