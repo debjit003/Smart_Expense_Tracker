@@ -60,3 +60,20 @@ Regex Parsing: * Amounts: A robust regex [\d.,]+ extracts numbers. A custom pars
 Dates: Supports formats like DD-MM-YYYY, YYYY-MM-DD, and text-based dates like Feb 03, 2013.
 
 Categorization: The extracted text is scanned against a dictionary of keywords to assign a category (Food, Transport, etc.).
+
+### 🚀 Deployment
+This app is optimized for Streamlit Community Cloud.
+
+*Fork this repo.
+
+*Login to Streamlit Cloud.
+
+*Connect your GitHub and deploy.
+
+*Note: The packages.txt file ensures Tesseract is installed on the cloud server automatically.
+
+### 🤝 Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+### 📄 License
+This project is licensed under the MIT License.
