@@ -1,0 +1,8 @@
+streamlit
+pandas
+google-generativeai
+plotly
+streamlit-option-menu
+firebase-admin
+pillow
+streamlit-paste-button
