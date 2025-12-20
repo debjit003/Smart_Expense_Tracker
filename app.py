@@ -10,11 +10,11 @@ import hashlib
 from streamlit_paste_button import paste_image_button
 
 # ==========================================
-# 1. CONFIG & STYLING (Immersive App Theme)
+# 1. CONFIG & STYLING 
 # ==========================================
 st.set_page_config(page_title="Smart Expense Tracker", page_icon="💸", layout="wide")
 
-# CSS: Hiding Streamlit UI for a native app feel
+# CSS: 
 st.markdown("""
     <style>
     /* ---------------------------------------
@@ -224,7 +224,7 @@ def main():
         # Centered Layout for Login
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            st.markdown("<br><br>", unsafe_allow_html=True) # Spacing since header is gone
+            st.markdown("<br><br>", unsafe_allow_html=True) 
             st.title("💸 Smart Expense Tracker")
             st.markdown("### Secure Login")
             
@@ -330,7 +330,7 @@ def main():
 
         # RIGHT: FORM SECTION
         with col_form:
-            st.subheader("2. Verify & Save")
+            st.subheader("2. Add Expense Details (Manually)")
             with st.container(border=True):
                 with st.form("add_exp"):
                     f_c1, f_c2 = st.columns(2)
