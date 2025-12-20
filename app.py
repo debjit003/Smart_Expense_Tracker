@@ -90,7 +90,6 @@ class DataHandler:
             df = df.drop(row_identifier)
             df.to_csv(self.csv_file, index=False)
         else:
-            # Firestore delete not implemented in this simple version
             pass
 
 db = DataHandler()
@@ -105,8 +104,9 @@ def analyze_receipt_with_ai(image):
 
     genai.configure(api_key=api_key)
     
-    # Updated Model Name to be more robust
-    model = genai.GenerativeModel('gemini-1.5-flash-latest')
+    # --- UPDATED MODEL NAME (Crucial Fix) ---
+    # Gemini 1.5 is retired. Using the current standard: 2.5 Flash
+    model = genai.GenerativeModel('gemini-2.5-flash')
 
     prompt = """
     Analyze this receipt image. Extract:
