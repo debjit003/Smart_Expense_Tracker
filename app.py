@@ -103,9 +103,7 @@ def analyze_receipt_with_ai(image):
         return None, 0.0, "Other", "API Key Missing!"
 
     genai.configure(api_key=api_key)
-    
-    # --- UPDATED MODEL NAME (Crucial Fix) ---
-    # Gemini 1.5 is retired. Using the current standard: 2.5 Flash
+    # Using the standard Flash model
     model = genai.GenerativeModel('gemini-2.5-flash')
 
     prompt = """
@@ -133,6 +131,12 @@ def analyze_receipt_with_ai(image):
 def main():
     st.title("💰 Smart Wallet")
     
+    # --- SESSION STATE INITIALIZATION (The Fix) ---
+    if 'form_amount' not in st.session_state: st.session_state.form_amount = 0.0
+    if 'form_date' not in st.session_state: st.session_state.form_date = datetime.today()
+    if 'form_category' not in st.session_state: st.session_state.form_category = "Other"
+    if 'form_desc' not in st.session_state: st.session_state.form_desc = ""
+    
     tab1, tab2, tab3 = st.tabs(["➕ Add", "📊 Insights", "📜 History"])
 
     # --- TAB 1: ADD EXPENSE ---
@@ -155,12 +159,6 @@ def main():
         elif paste_result.image_data is not None:
             image = paste_result.image_data
 
-        # Defaults
-        default_date = datetime.today()
-        default_amount = 0.0
-        default_cat = "Other"
-        default_desc = ""
-
         if image:
             st.image(image, caption="Receipt Preview", width=200)
             
@@ -168,13 +166,19 @@ def main():
                 if st.button("✨ Auto-Fill Details", type="primary"):
                     with st.spinner("AI is reading details..."):
                         ex_date, ex_amount, ex_cat, ex_desc = analyze_receipt_with_ai(image)
+                        
                         if ex_amount and ex_amount > 0:
-                            st.toast("Success!", icon="✅")
-                            try: default_date = datetime.strptime(ex_date, '%Y-%m-%d')
-                            except: pass
-                            default_amount = float(ex_amount)
-                            default_cat = ex_cat
-                            default_desc = ex_desc
+                            # SAVE TO SESSION STATE
+                            st.session_state.form_amount = float(ex_amount)
+                            st.session_state.form_category = ex_cat
+                            st.session_state.form_desc = ex_desc
+                            try:
+                                st.session_state.form_date = datetime.strptime(ex_date, '%Y-%m-%d')
+                            except:
+                                st.session_state.form_date = datetime.today()
+                                
+                            st.toast("Success! Details updated.", icon="✅")
+                            st.rerun() # Force refresh so form picks up new values
                         else:
                             st.error(f"Could not read receipt: {ex_desc}")
 
@@ -182,20 +186,31 @@ def main():
         with st.container(border=True):
             with st.form("expense_form", clear_on_submit=True):
                 c1, c2 = st.columns([1, 1])
-                with c1: amount = st.number_input("Amount (₹)", value=default_amount, step=1.0)
-                with c2: date = st.date_input("Date", default_date)
+                with c1: 
+                    # READ FROM SESSION STATE
+                    amount = st.number_input("Amount (₹)", value=st.session_state.form_amount, step=1.0)
+                with c2: 
+                    date = st.date_input("Date", value=st.session_state.form_date)
                 
-                category = st.selectbox("Category", 
-                    ["Food", "Transport", "Shopping", "Bills", "Health", "Entertainment", "Other"], 
-                    index=["Food", "Transport", "Shopping", "Bills", "Health", "Entertainment", "Other"].index(default_cat) if default_cat in ["Food", "Transport", "Shopping", "Bills", "Health", "Entertainment", "Other"] else 6
-                )
-                desc = st.text_input("Description", value=default_desc)
+                # Safe Category Index
+                cat_options = ["Food", "Transport", "Shopping", "Bills", "Health", "Entertainment", "Other"]
+                curr_cat = st.session_state.form_category
+                cat_idx = cat_options.index(curr_cat) if curr_cat in cat_options else 6
+                
+                category = st.selectbox("Category", cat_options, index=cat_idx)
+                desc = st.text_input("Description", value=st.session_state.form_desc)
                 
                 st.write("")
                 if st.form_submit_button("✅ Save Expense", type="primary", use_container_width=True):
                     if amount > 0:
                         db.save_expense(date, category, amount, desc)
                         st.toast(f"Saved ₹{amount}!", icon="🎉")
+                        
+                        # RESET SESSION STATE AFTER SAVE
+                        st.session_state.form_amount = 0.0
+                        st.session_state.form_desc = ""
+                        st.session_state.form_category = "Other"
+                        st.rerun()
                     else:
                         st.warning("Enter an amount greater than 0")
 
