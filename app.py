@@ -13,7 +13,6 @@ from streamlit_paste_button import paste_image_button
 st.set_page_config(page_title="Smart Wallet", page_icon="💳", layout="centered")
 
 # --- CSS FOR MOBILE OPTIMIZATION ---
-# Makes buttons span full width on mobile and hides clutter
 st.markdown("""
     <style>
     .stApp {margin-top: -30px;}
@@ -24,7 +23,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. DATABASE HANDLER (Robust Secrets Parsing)
+# 2. DATABASE HANDLER
 # ==========================================
 class DataHandler:
     def __init__(self):
@@ -32,22 +31,17 @@ class DataHandler:
         self.use_cloud = False
         self.db = None
         
-        # Check for Firebase secrets (Production Mode)
         if "firebase" in st.secrets:
             try:
                 import firebase_admin
                 from firebase_admin import credentials, firestore
                 
-                # Check if already initialized to avoid errors on reload
                 if not firebase_admin._apps:
                     secrets_conf = st.secrets["firebase"]
-                    
-                    # Handle both JSON string (Old) and TOML Dict (New/Clean) formats
                     if "text_key" in secrets_conf:
                         key_dict = json.loads(secrets_conf["text_key"])
                     else:
                         key_dict = dict(secrets_conf)
-                        # Fix potential newline issues in private key if they exist
                         if "\\n" in key_dict["private_key"]:
                             key_dict["private_key"] = key_dict["private_key"].replace("\\n", "\n")
                     
@@ -57,7 +51,7 @@ class DataHandler:
                 self.db = firestore.client()
                 self.use_cloud = True
             except Exception as e:
-                st.warning(f"Cloud DB Error: {e}. Falling back to CSV.")
+                st.warning(f"Cloud DB Warning: {e}. Using CSV.")
         
     def save_expense(self, date, category, amount, description):
         data = {
@@ -96,7 +90,7 @@ class DataHandler:
             df = df.drop(row_identifier)
             df.to_csv(self.csv_file, index=False)
         else:
-            # Placeholder for Firestore delete (requires Doc IDs)
+            # Firestore delete not implemented in this simple version
             pass
 
 db = DataHandler()
@@ -110,7 +104,9 @@ def analyze_receipt_with_ai(image):
         return None, 0.0, "Other", "API Key Missing!"
 
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    
+    # Updated Model Name to be more robust
+    model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
     prompt = """
     Analyze this receipt image. Extract:
@@ -143,21 +139,16 @@ def main():
     with tab1:
         st.write("### 1. Upload Receipt")
         
-        # Two columns for Upload vs Paste
         col_up, col_paste = st.columns(2)
-        
         with col_up:
             uploaded_file = st.file_uploader("Upload", type=['png', 'jpg', 'jpeg'], label_visibility="collapsed")
-        
         with col_paste:
-            # The paste button UI
             paste_result = paste_image_button(
                 label="📋 Paste Image",
                 background_color="#FF4B4B",
                 hover_background_color="#FF0000",
             )
 
-        # Logic to handle Image Source
         image = None
         if uploaded_file:
             image = Image.open(uploaded_file)
@@ -170,17 +161,15 @@ def main():
         default_cat = "Other"
         default_desc = ""
 
-        # Image Preview & AI Action
         if image:
             st.image(image, caption="Receipt Preview", width=200)
             
-            # Using a container for the AI button to make it pop
             with st.container():
                 if st.button("✨ Auto-Fill Details", type="primary"):
                     with st.spinner("AI is reading details..."):
                         ex_date, ex_amount, ex_cat, ex_desc = analyze_receipt_with_ai(image)
                         if ex_amount and ex_amount > 0:
-                            st.toast("Success! Check the form below.", icon="✅")
+                            st.toast("Success!", icon="✅")
                             try: default_date = datetime.strptime(ex_date, '%Y-%m-%d')
                             except: pass
                             default_amount = float(ex_amount)
@@ -190,27 +179,19 @@ def main():
                             st.error(f"Could not read receipt: {ex_desc}")
 
         st.write("### 2. Verify Details")
-        
-        # Form Container
         with st.container(border=True):
             with st.form("expense_form", clear_on_submit=True):
-                # Row 1: Amount & Date
                 c1, c2 = st.columns([1, 1])
-                with c1:
-                    amount = st.number_input("Amount (₹)", value=default_amount, step=1.0)
-                with c2:
-                    date = st.date_input("Date", default_date)
+                with c1: amount = st.number_input("Amount (₹)", value=default_amount, step=1.0)
+                with c2: date = st.date_input("Date", default_date)
                 
-                # Row 2: Category
                 category = st.selectbox("Category", 
                     ["Food", "Transport", "Shopping", "Bills", "Health", "Entertainment", "Other"], 
                     index=["Food", "Transport", "Shopping", "Bills", "Health", "Entertainment", "Other"].index(default_cat) if default_cat in ["Food", "Transport", "Shopping", "Bills", "Health", "Entertainment", "Other"] else 6
                 )
+                desc = st.text_input("Description", value=default_desc)
                 
-                # Row 3: Note
-                desc = st.text_input("Description", value=default_desc, placeholder="e.g. Dinner with friends")
-                
-                st.write("") # Spacer
+                st.write("")
                 if st.form_submit_button("✅ Save Expense", type="primary", use_container_width=True):
                     if amount > 0:
                         db.save_expense(date, category, amount, desc)
@@ -222,46 +203,29 @@ def main():
     with tab2:
         df = db.load_expenses()
         if not df.empty:
-            # Top Metrics
             total = df['Amount'].sum()
             avg = df['Amount'].mean()
-            
             m1, m2 = st.columns(2)
             m1.metric("Total Spent", f"₹{total:,.0f}")
             m2.metric("Avg Transaction", f"₹{avg:,.0f}")
-            
             st.divider()
-            
-            # 1. Category Chart (Horizontal is better for mobile)
             st.subheader("Where is money going?")
-            cat_data = df.groupby("Category")["Amount"].sum().sort_values(ascending=True)
-            st.bar_chart(cat_data, horizontal=True, color="#4CAF50")
-            
-            # 2. Monthly Trend
+            st.bar_chart(df.groupby("Category")["Amount"].sum().sort_values(ascending=True), horizontal=True, color="#4CAF50")
             st.subheader("Daily Trend")
-            daily_data = df.groupby("Date")["Amount"].sum()
-            st.line_chart(daily_data, color="#FF5722")
+            st.line_chart(df.groupby("Date")["Amount"].sum(), color="#FF5722")
         else:
-            st.info("No data yet. Start by adding an expense!")
+            st.info("No data yet.")
 
     # --- TAB 3: HISTORY ---
     with tab3:
         st.subheader("History")
         df = db.load_expenses()
         if not df.empty:
-            # Clean Table View
             display_df = df.copy()
             display_df['Date'] = display_df['Date'].dt.strftime('%d %b')
+            st.dataframe(display_df[['Date', 'Category', 'Amount', 'Description']], use_container_width=True, hide_index=True)
             
-            st.dataframe(
-                display_df[['Date', 'Category', 'Amount', 'Description']], 
-                use_container_width=True, 
-                hide_index=True
-            )
-            
-            # Delete Helper
             with st.expander("🛠 Manage Records"):
-                st.caption("Select a record to remove it from the view (CSV only for now)")
                 options = df.apply(lambda x: f"{x['Date'].strftime('%Y-%m-%d')} - ₹{x['Amount']} ({x['Category']})", axis=1)
                 selected = st.selectbox("Select transaction", options.index, format_func=lambda x: options[x])
                 if st.button("Delete Selected"):
