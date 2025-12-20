@@ -1,104 +1,13 @@
-💸 Smart Expense Tracker
-
-A professional, scalable, and AI-powered personal finance application built with Streamlit. It leverages Google Gemini 2.5 for intelligent receipt scanning and Google Firestore for secure, multi-user cloud storage. Designed with a mobile-first responsive UI.
-
-🚀 Key Features
-
-🤖 AI Receipt Scanning: Automatically extracts Date, Amount, Category, and Merchant from receipt images using Google's Gemini 2.5 Flash model.
-
-📋 Smart Paste: Supports direct image pasting from the clipboard for quick data entry.
-
-🔐 Secure Authentication: Multi-user support with SHA-256 password hashing and duplicate username prevention.
-
-☁️ Cloud Database: Real-time, scalable data storage using Google Firebase Firestore.
-
-📊 Interactive Dashboard: Visualizes spending trends, category splits, and lifetime expenses using dynamic charts.
-
-🚨 Smart Budget Alerts: Sets monthly budget limits and triggers visual warnings when spending exceeds 90%.
-
-📱 Responsive Design: Adaptive layout that functions like a native app on mobile and offers a split-screen view on desktop.
-
-🛠️ Tech Stack
-
-Frontend: Streamlit (Python-based Web Framework)
-
-AI Engine: Google Generative AI (Gemini 2.5 Flash)
-
-Database: Google Firebase Firestore (NoSQL)
-
-Data Manipulation: Pandas
-
-Image Processing: Pillow (PIL)
-
-Security: Python Hashlib (SHA-256)
-
-⚙️ Installation & Setup
-
-1. Clone the Repository
-
-git clone [https://github.com/your-username/smart-expense-tracker.git]
+<!-- PROJECT LOGO --><br /><div align="center"><h1 align="center">💸 Smart Expense Tracker</h1><p align="center">An AI-powered, cloud-integrated personal finance assistant built for modern scale.<br /><a href="https://streamlit.io/"><strong>Explore the docs »</strong></a><br /><br /><a href="#">View Demo</a>·<a href="https://www.google.com/search?q=https://github.com/your-username/smart-expense-tracker/issues">Report Bug</a>·<a href="https://www.google.com/search?q=https://github.com/your-username/smart-expense-tracker/issues">Request Feature</a></p></div><!-- BADGES --><div align="center"></div><br /><!-- ABOUT THE PROJECT -->📖 About The ProjectSmart Expense Tracker is not just a digital ledger; it's an intelligent financial companion. By leveraging Google's Gemini 2.5 Flash model, it transforms the tedious task of manual data entry into a single click.Whether you are snapping a photo of a dinner receipt or pasting a digital invoice, the AI parses the data instantly. Coupled with Firebase Firestore, your data is secure, synced, and scalable across devices.🌟 Key FeaturesFeatureDescription🤖 AI Receipt ParsingExtracts Date, Merchant, Category, and Amount from images with high precision using Gemini 2.5.🔐 Secure AuthCustom-built authentication system using SHA-256 hashing to ensure user privacy and data separation.☁️ Cloud SyncReal-time CRUD operations using Google Firestore. Your data is safe even if you close the browser.🚨 Smart AlertsVisual warning system that triggers when you cross 90% of your defined monthly budget.📱 Native FeelOptimized CSS removes standard web elements for an immersive, app-like experience on mobile.📋 Clipboard MagicCustom "Paste" button allows for direct image input from your clipboard—perfect for desktop users.<br /><!-- TECH STACK -->🛠️ Tech StackThis project is built using a modern, scalable architecture:Frontend: Streamlit (Rapid UI Development)Intelligence: Google Gemini API (Multimodal Processing)Backend: Firebase Firestore (NoSQL Database)Data Processing: Pandas & Pillow<br /><!-- GETTING STARTED -->🚀 Getting StartedFollow these steps to set up the project locally.PrerequisitesPython 3.9+A Google Cloud Project (for Firebase)A Google AI Studio API KeyInstallationClone the repogit clone [https://github.com/your-username/smart-expense-tracker.git](https://github.com/your-username/smart-expense-tracker.git)
 cd smart-expense-tracker
+Install packagespip install -r requirements.txt
+Setup SecretsCreate a file named .streamlit/secrets.toml and add your keys:GEMINI_API_KEY = "Your-Gemini-Key-Here"
 
-
-2. Install Dependencies
-
-pip install -r requirements.txt
-
-
-3. Configure Secrets
-
-The app requires API keys to function. Create a folder named .streamlit in the root directory and add a file named secrets.toml.
-
-Format for .streamlit/secrets.toml:
-
-# Google Gemini API Key
-GEMINI_API_KEY = "AIzaSyD..."
-
-# Firebase Service Account Credentials
 [firebase]
 type = "service_account"
 project_id = "your-project-id"
 private_key_id = "..."
 client_email = "..."
-client_id = "..."
-auth_uri = "[https://accounts.google.com/o/oauth2/auth](https://accounts.google.com/o/oauth2/auth)"
-token_uri = "[https://oauth2.googleapis.com/token](https://oauth2.googleapis.com/token)"
-auth_provider_x509_cert_url = "[https://www.googleapis.com/oauth2/v1/certs](https://www.googleapis.com/oauth2/v1/certs)"
-client_x509_cert_url = "..."
-private_key = """
------BEGIN PRIVATE KEY-----
-MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC...
------END PRIVATE KEY-----
-"""
-
-
-Note: You can obtain the Gemini API key from Google AI Studio and the Firebase credentials from the Firebase Console.
-
-4. Run the App
-
-streamlit run app.py
-
-
-📱 Usage Guide
-
-Sign Up/Login: Create a unique username and password to access your private wallet.
-
-Add Expense:
-
-Scan: Upload or paste a receipt image and click "✨ Extract Details with AI".
-
-Manual: Enter or edit details in the form on the right.
-
-Set Budget: Go to the "Budget" tab to define your monthly limit.
-
-Track: Monitor the "Dashboard" for real-time spending insights and budget alerts.
-
-🔮 Future Roadmap (Scalability)
-
-[ ] Pagination: Optimize database queries to load expenses in chunks (e.g., last 50 records) for enterprise-level scalability.
-
-[ ] Export Data: Add functionality to export monthly reports as CSV/PDF.
-
-[ ] Email Verification: Integrate SMTP for password recovery.
-
-Built with ❤️ by Debjit Roy
+# ... (Add full Firebase JSON credentials here)
+Run the Appstreamlit run app.py
+<br /><!-- USAGE EXAMPLES -->📱 Usage1. The DashboardUpon logging in, you are greeted with a split-view dashboard. The left side handles input, while the right side manages verification.2. Adding ExpensesMobile: Tap "Upload" to take a picture of your receipt.Desktop: Take a screenshot and click "Paste Image".The AI will automatically fill the form. You just hit "Save".3. Setting BudgetsNavigate to the Budget tab. Set a monthly cap (e.g., ₹5000). If your total expenses for the current month exceed ₹4500 (90%), a red alert box will appear on your dashboard.<br /><!-- ROADMAP -->🔮 Future Roadmap[ ] Data Export: Download monthly reports as PDF/Excel.[ ] Multi-Currency: Support for USD/EUR conversion.[ ] Category Learning: AI that learns your specific categorization preferences over time.[ ] User Profile: Ability to reset passwords and update profile pictures.<br /><!-- CONTRIBUTING -->🤝 ContributingContributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.Fork the ProjectCreate your Feature Branch (git checkout -b feature/AmazingFeature)Commit your Changes (git commit -m 'Add some AmazingFeature')Push to the Branch (git push origin feature/AmazingFeature)Open a Pull Request<br /><!-- LICENSE -->📝 LicenseDistributed under the MIT License. See LICENSE for more information.<br /><!-- CONTACT -->📧 ContactYour Name - @yourtwitter - email@example.comProject Link: https://github.com/your-username/smart-expense-tracker<p align="center"><img src="https://www.google.com/search?q=https://capsule-render.vercel.app/api%3Ftype%3Dwaving%26color%3D00cba9%26height%3D100%26section%3Dfooter"/></p>
